@@ -21,6 +21,23 @@ This repository collects custom dashboards, scripts, and helpers designed for [T
 - **Habit Dashboard** (`habits/`) – A streak-driven habit tracker frontend script with rich metadata, rolling summaries, multi-entry support, and per-dashboard data isolation. Full documentation lives in [`habits/README.md`](habits/README.md) with deep dives under `habits/docs/`
 - **Task Dashboard** (`task-system/`) – A productivity hub featuring Kanban & List views, quick add modals, bulk edits, calendar/overview modes, status timelines, and advanced filtering. See [`task-system/README.md`](task-system/README.md) for installation and usage
 
+## Screenshots
+
+<img width="720" height="714" alt="image" src="https://github.com/user-attachments/assets/2b8d26dd-25f9-4d4c-a2af-06aedcfb2744" />
+
+<img width="755" height="873" alt="image" src="https://github.com/user-attachments/assets/596b2a37-20c0-44e5-97f9-dc4b2e3c484b" />
+
+<img width="639" height="700" alt="image" src="https://github.com/user-attachments/assets/6d529a40-f58f-4d97-985f-10f630409999" />
+
+<img width="1348" height="839" alt="image" src="https://github.com/user-attachments/assets/411972fa-10c3-4e6d-9b5b-c0ea3ea8d26e" />
+
+<img width="1346" height="746" alt="image" src="https://github.com/user-attachments/assets/36847ebd-a833-442d-b81c-bc0963fa7156" />
+
+<img width="1573" height="935" alt="image" src="https://github.com/user-attachments/assets/f21dd7b9-2871-4f8a-a097-83a3cc9d7a7f" />
+
+
+
+
 ## Contributing
 
 We welcome improvements to both dashboards and the shared documentation. Please update `AGENTS.MD` with any new context so future contributors stay aligned, and keep each directory’s README (and any deep-dive docs) current when behaviour changes.
