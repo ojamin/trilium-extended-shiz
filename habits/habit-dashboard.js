@@ -16,6 +16,32 @@
 
     const apiRef = typeof api !== "undefined" ? api : null;
 
+    function getNoteSafely(apiObj, noteId) {
+        if (!apiObj || !noteId) {
+            return null;
+        }
+        try {
+            const note = apiObj.getNote(noteId);
+            if (!note || note.isDeleted) {
+                return null;
+            }
+            return note;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    function hasHabitDashboardRootLabel(note, constants) {
+        if (!note || !constants?.labels?.root) {
+            return false;
+        }
+        try {
+            return note.getLabelValue(constants.labels.root) === "1";
+        } catch (error) {
+            return false;
+        }
+    }
+
     try {
 
     const GLOBAL_KEY = "__TN_HABIT_DASHBOARDS__";
@@ -294,17 +320,20 @@
             --hd-chip-bg: var(--button-background-color, var(--hd-surface-alt));
             --hd-chip-border: var(--button-border-color, var(--hd-border));
             --hd-chip-foreground: var(--button-text-color, var(--hd-foreground));
-            --hd-border-soft: color-mix(in srgb, var(--hd-border) 35%, transparent);
-            --hd-border-stronger: color-mix(in srgb, var(--hd-border) 65%, transparent);
-            --hd-ring-empty: color-mix(in srgb, var(--hd-border) 25%, transparent);
-            --hd-positive-bg: color-mix(in srgb, var(--hd-positive) 18%, transparent);
-            --hd-positive-border: color-mix(in srgb, var(--hd-positive) 38%, transparent);
-            --hd-warning-bg: color-mix(in srgb, var(--hd-warning) 18%, transparent);
-            --hd-warning-border: color-mix(in srgb, var(--hd-warning) 40%, transparent);
-            --hd-info-bg: color-mix(in srgb, var(--hd-info) 18%, transparent);
-            --hd-info-border: color-mix(in srgb, var(--hd-info) 45%, transparent);
-            --hd-critical-bg: color-mix(in srgb, var(--hd-critical) 18%, transparent);
-            --hd-critical-border: color-mix(in srgb, var(--hd-critical) 45%, transparent);
+            --hd-border-soft: color-mix(in srgb, var(--hd-border) 35%, var(--hd-surface) 65%);
+            --hd-border-stronger: color-mix(in srgb, var(--hd-border) 65%, var(--hd-surface) 35%);
+            --hd-ring-empty: color-mix(in srgb, var(--hd-border) 30%, var(--hd-surface) 70%);
+            --hd-positive-bg: color-mix(in srgb, var(--hd-positive) 18%, var(--hd-surface) 82%);
+            --hd-positive-border: color-mix(in srgb, var(--hd-positive) 42%, var(--hd-surface) 58%);
+            --hd-warning-bg: color-mix(in srgb, var(--hd-warning) 18%, var(--hd-surface) 82%);
+            --hd-warning-border: color-mix(in srgb, var(--hd-warning) 45%, var(--hd-surface) 55%);
+            --hd-info-bg: color-mix(in srgb, var(--hd-info) 18%, var(--hd-surface) 82%);
+            --hd-info-border: color-mix(in srgb, var(--hd-info) 48%, var(--hd-surface) 52%);
+            --hd-critical-bg: color-mix(in srgb, var(--hd-critical) 18%, var(--hd-surface) 82%);
+            --hd-critical-border: color-mix(in srgb, var(--hd-critical) 48%, var(--hd-surface) 52%);
+            --hd-surface-muted: color-mix(in srgb, var(--hd-surface) 92%, var(--hd-foreground) 8%);
+            --hd-surface-elevated: color-mix(in srgb, var(--hd-surface) 88%, var(--hd-foreground) 12%);
+            --hd-surface-hover: color-mix(in srgb, var(--hd-surface) 94%, var(--hd-foreground) 6%);
             --hd-overlay: color-mix(in srgb, var(--hd-foreground) 72%, transparent);
             --hd-shadow-soft: 0 12px 24px color-mix(in srgb, var(--hd-foreground) 16%, transparent);
             --hd-shadow-medium: 0 12px 32px color-mix(in srgb, var(--hd-foreground) 18%, transparent);
@@ -420,7 +449,9 @@
             display: none;
             flex-direction: column;
             padding: 6px;
-            background: var(--hd-surface, var(--detail-background, #ffffff));
+            background: var(--menu-background-color-no-backdrop,
+                var(--menu-background-color,
+                    var(--hd-surface-elevated, var(--detail-background, #ffffff))));
             border: 1px solid var(--hd-border-soft, rgba(148, 163, 184, 0.45));
             border-radius: 8px;
             box-shadow: 0 14px 30px rgba(15, 23, 42, 0.18);
@@ -450,7 +481,7 @@
 
         .habit-dashboard__menu-surface button:hover,
         .habit-dashboard__menu-surface button:focus-visible {
-            background: color-mix(in srgb, var(--hd-accent) 8%, transparent);
+            background: color-mix(in srgb, var(--hd-accent) 8%, var(--hd-surface-hover) 92%);
             outline: none;
         }
 
@@ -969,6 +1000,23 @@
             color: var(--accent, #4ba3ff);
         }
 
+        .habit-dashboard__inactive {
+            align-items: center;
+            color: var(--detail-foreground-muted, var(--secondary-foreground-color, #5f6b7a));
+            display: flex;
+            justify-content: center;
+            min-height: 8rem;
+            padding: 2rem 1rem;
+            text-align: center;
+        }
+
+        .habit-dashboard__inactive p {
+            font-size: 1rem;
+            line-height: 1.5;
+            margin: 0;
+            max-width: 24rem;
+        }
+
         .habit-dashboard__range-summary {
             display: none;
             margin-top: 6px;
@@ -1428,7 +1476,7 @@
         .habit-dashboard__modal {
             position: fixed;
             inset: 0;
-            background: var(--hd-overlay);
+            background: color-mix(in srgb, var(--modal-backdrop-color, var(--hd-overlay)) 40%, transparent);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1438,7 +1486,8 @@
         }
 
         .habit-dashboard__modal-content {
-            background: var(--detail-background, var(--pane-background-color, #ffffff));
+            background: var(--modal-background-color,
+                var(--hd-surface-elevated, var(--detail-background, var(--pane-background-color, #ffffff))));
             border: 1px solid var(--detail-border, var(--pane-border-color, #d5dbe6));
             border-radius: 10px;
             padding: 20px;
@@ -1493,7 +1542,7 @@
             padding: 10px;
             border-radius: 8px;
             border: 1px solid var(--hd-border-soft);
-            background: color-mix(in srgb, var(--hd-surface) 96%, transparent);
+            background: var(--hd-surface-muted, var(--hd-surface));
         }
 
         .habit-dashboard__form-field--subentry .habit-dashboard__subentry-control {
@@ -1576,7 +1625,7 @@
             border-radius: 8px;
             padding: 12px;
             margin-top: 8px;
-            background: color-mix(in srgb, var(--hd-surface) 92%, transparent);
+            background: var(--hd-surface-muted, var(--hd-surface));
             grid-column: 1 / -1;
         }
 
@@ -2101,6 +2150,10 @@
             this.scriptNoteId = this.detectScriptNoteId(api);
             this.structureCachedAt = 0;
             this.structureCacheTTL = 60000;
+            this.explicitRootNoteId = null;
+            this.knownRootNoteIds = new Set();
+            this.pendingRootNoteIds = new Set();
+            this.constants = CONSTANTS;
         }
 
         setApi(api) {
@@ -2113,6 +2166,90 @@
             if (detectedScriptId) {
                 this.scriptNoteId = detectedScriptId;
             }
+            this.explicitRootNoteId = null;
+            this.pendingRootNoteIds.clear();
+            this.knownRootNoteIds.clear();
+        }
+
+        resetStructureCache() {
+            this.structurePromise = null;
+            this.structure = null;
+            this.structureCachedAt = 0;
+        }
+
+        setExplicitRootNoteId(noteId, { allowPending = false } = {}) {
+            if (!noteId) {
+                this.explicitRootNoteId = null;
+                this.pendingRootNoteIds.clear();
+                this.rootNoteId = null;
+                return;
+            }
+            this.explicitRootNoteId = noteId;
+            this.rootNoteId = noteId;
+            if (allowPending) {
+                this.pendingRootNoteIds.add(noteId);
+            } else {
+                this.pendingRootNoteIds.delete(noteId);
+            }
+            if (this.isDashboardRootNoteId(noteId)) {
+                this.knownRootNoteIds.add(noteId);
+                this.pendingRootNoteIds.delete(noteId);
+            }
+        }
+
+        getResolvedRootNoteId() {
+            if (this.rootNoteId && this.isDashboardRootNoteId(this.rootNoteId)) {
+                return this.rootNoteId;
+            }
+            return null;
+        }
+
+        registerKnownRootNote(noteId) {
+            if (!noteId) {
+                return;
+            }
+            if (this.isDashboardRootNoteId(noteId, { forceLookup: true })) {
+                this.knownRootNoteIds.add(noteId);
+                this.pendingRootNoteIds.delete(noteId);
+            }
+        }
+
+        isDashboardRootNoteId(noteId, { forceLookup = false } = {}) {
+            if (!noteId) {
+                return false;
+            }
+
+            if (!forceLookup && this.pendingRootNoteIds.has(noteId)) {
+                const pendingNote = getNoteSafely(this.api, noteId);
+                if (!pendingNote) {
+                    this.pendingRootNoteIds.delete(noteId);
+                    return false;
+                }
+                if (hasHabitDashboardRootLabel(pendingNote, this.constants)) {
+                    this.pendingRootNoteIds.delete(noteId);
+                    this.knownRootNoteIds.add(noteId);
+                }
+                return true;
+            }
+
+            if (!forceLookup && this.knownRootNoteIds.has(noteId)) {
+                const cachedNote = getNoteSafely(this.api, noteId);
+                if (cachedNote && hasHabitDashboardRootLabel(cachedNote, this.constants)) {
+                    return true;
+                }
+                this.knownRootNoteIds.delete(noteId);
+            }
+
+            const note = getNoteSafely(this.api, noteId);
+            if (!note) {
+                return false;
+            }
+            if (hasHabitDashboardRootLabel(note, this.constants)) {
+                this.knownRootNoteIds.add(noteId);
+                this.pendingRootNoteIds.delete(noteId);
+                return true;
+            }
+            return false;
         }
 
         detectScriptNoteId(api) {
@@ -2132,10 +2269,12 @@
         }
 
         resolveRootNoteId(force = false) {
-            if (!force && this.rootNoteId) {
-                return this.rootNoteId;
+            const previous = this.rootNoteId && this.isDashboardRootNoteId(this.rootNoteId)
+                ? this.rootNoteId
+                : null;
+            if (!force && previous && !this.pendingRootNoteIds.has(previous)) {
+                return previous;
             }
-            const previous = this.rootNoteId;
             let candidate = null;
             try {
                 const context = this.api.getActiveContextNote?.();
@@ -2145,20 +2284,39 @@
             } catch (error) {
                 // context note unavailable in some flows; fallback to start note
             }
-            if (!candidate && this.api.startNote?.noteId) {
-                candidate = this.api.startNote.noteId;
+            const candidates = [];
+            if (candidate) {
+                candidates.push(candidate);
             }
-            if (!candidate && this.structure?.rootNoteId) {
-                candidate = this.structure.rootNoteId;
+            if (this.explicitRootNoteId && !candidates.includes(this.explicitRootNoteId)) {
+                candidates.unshift(this.explicitRootNoteId);
             }
-            if (!candidate && previous) {
-                candidate = previous;
+            const structureRootId = this.structure?.rootNoteId;
+            if (structureRootId && !candidates.includes(structureRootId)) {
+                candidates.push(structureRootId);
             }
-            if (previous && candidate && previous !== candidate) {
-                this.structure = null;
-                this.structurePromise = null;
+            const startNoteId = this.api.startNote?.noteId || null;
+            if (startNoteId && !candidates.includes(startNoteId)) {
+                candidates.push(startNoteId);
             }
-            this.rootNoteId = candidate;
+            if (previous && !candidates.includes(previous)) {
+                candidates.push(previous);
+            }
+
+            for (const candidateId of candidates) {
+                if (!candidateId) {
+                    continue;
+                }
+                if (this.isDashboardRootNoteId(candidateId)) {
+                    if (previous && previous !== candidateId) {
+                        this.resetStructureCache();
+                    }
+                    this.rootNoteId = candidateId;
+                    return candidateId;
+                }
+            }
+
+            this.rootNoteId = previous || null;
             return this.rootNoteId;
         }
 
@@ -2179,6 +2337,7 @@
                 try {
                     this.structure = await this.structurePromise;
                     this.structureCachedAt = Date.now();
+                    this.registerKnownRootNote(this.structure?.rootNoteId);
                 } catch (error) {
                     this.structurePromise = null;
                     this.structureCachedAt = 0;
@@ -2187,6 +2346,7 @@
             } else if (!this.structure && this.structurePromise) {
                 try {
                     this.structure = await this.structurePromise;
+                    this.registerKnownRootNote(this.structure?.rootNoteId);
                 } catch (error) {
                     this.structurePromise = null;
                     throw error;
@@ -2289,11 +2449,16 @@
 
         async call(action, payload = {}) {
             let rootNoteId = this.resolveRootNoteId();
-            if (!rootNoteId && this.structure?.rootNoteId) {
-                rootNoteId = this.structure.rootNoteId;
+            if (!rootNoteId && this.explicitRootNoteId) {
+                rootNoteId = this.explicitRootNoteId;
+                this.pendingRootNoteIds.add(rootNoteId);
             }
-            if (!rootNoteId && this.rootNoteId) {
-                rootNoteId = this.rootNoteId;
+            if (!rootNoteId) {
+                this.logger?.warn?.("backend.call.no-root", {
+                    action,
+                    payloadKeys: Object.keys(payload || {})
+                });
+                throw new Error("Habit dashboard root note unavailable");
             }
             const scriptNoteId = this.detectScriptNoteId(this.api) || this.scriptNoteId || null;
             if (scriptNoteId) {
@@ -4730,7 +4895,7 @@
                         const active = this.api.getActiveContextNote?.();
                         if (!noteId || active?.noteId === noteId) {
                             this.logger.info("detector.note-switched", { source });
-                            this.handler(source);
+                            this.handler(source, active || null);
                         }
                     } catch (error) {
                         this.logger.warn("detector.event-check-failed", { error: error.message });
@@ -4789,7 +4954,7 @@
                 const startNoteId = this.api.startNote?.noteId || null;
                 if (!startNoteId || note?.noteId === startNoteId) {
                     this.logger.info("detector.check-fired", { source });
-                    this.handler(source);
+                    this.handler(source, note || null);
                 }
             } catch (error) {
                 this.logger.warn("detector.check-error", { error: error.message });
@@ -4821,7 +4986,7 @@
                 root: $root && $root.length ? $root : ensureRootStructure(api)
             };
             this.activeModal = null;
-            this.detector = new NoteSwitchDetector(api, this.logger, () => this.refresh({ silent: true, reason: "note-switch" }));
+            this.detector = new NoteSwitchDetector(api, this.logger, (source, note) => this.handleNoteSwitch(source, note));
             this.activePresses = new Map();
             this.dragState = null;
             this.longPressDelay = 450;
@@ -4837,6 +5002,9 @@
             };
             this.menuOutsideHandler = null;
             this.menuKeyHandler = null;
+            this.activeRootNoteId = null;
+            this.suspended = false;
+            this.eventsBound = false;
         }
 
         async init() {
@@ -4845,10 +5013,24 @@
                 return;
             }
 
+            const initialRootId = this.detectInitialRootNoteId(this.api);
+            if (initialRootId) {
+                this.activeRootNoteId = initialRootId;
+                this.backend.setExplicitRootNoteId(initialRootId, { allowPending: true });
+            } else {
+                this.logger.warn("init.no-root", {});
+            }
+
             this.cacheDom();
 
             if (!this.dom.root?.length) {
                 this.logger.warn("init.no-root", {});
+                return;
+            }
+
+            if (!initialRootId) {
+                this.suspendDashboard(null);
+                await this.detector.start();
                 return;
             }
 
@@ -4878,6 +5060,15 @@
             } else {
                 this.dom.root = ensureRootStructure(api);
             }
+            const nextRootId = this.detectInitialRootNoteId(api);
+            if (nextRootId) {
+                this.activeRootNoteId = nextRootId;
+                this.backend.setExplicitRootNoteId(nextRootId, { allowPending: true });
+            } else {
+                this.activeRootNoteId = null;
+                this.backend.setExplicitRootNoteId(null);
+            }
+            this.suspended = false;
             this.state.dateISO = api.dayjs(this.state.dateISO).format("YYYY-MM-DD");
             this.cacheDom();
             this.bindEvents();
@@ -4920,6 +5111,7 @@
                     this.dom.root.removeClass("habit-dashboard--align-dates").css("--hd-range-date-template", "");
                     this.dom.root.off();
                 }
+                this.eventsBound = false;
 
                 this.dragState = null;
                 if (this.ui?.rangeSubentryExpansion) {
@@ -4931,8 +5123,121 @@
                 this.dom = {};
                 this.logger.info("destroy.complete", {});
             } finally {
+                this.backend.resetStructureCache();
+                this.backend.setExplicitRootNoteId(null);
+                this.activeRootNoteId = null;
+                this.suspended = true;
                 this.destroying = false;
             }
+        }
+
+        detectInitialRootNoteId(apiInstance = this.api) {
+            if (!apiInstance) {
+                return null;
+            }
+            const directNote = (() => {
+                try {
+                    if (apiInstance.note?.noteId) {
+                        if (apiInstance.note?.type && apiInstance.note.type.toLowerCase() !== "script") {
+                            return apiInstance.note.noteId;
+                        }
+                    }
+                } catch (error) {
+                    this.logger.warn("root.detect.note-failed", { error: error.message });
+                }
+                return null;
+            })();
+            if (directNote) {
+                return directNote;
+            }
+            try {
+                if (apiInstance.renderNote?.noteId) {
+                    return apiInstance.renderNote.noteId;
+                }
+            } catch (error) {
+                this.logger.warn("root.detect.render-failed", { error: error.message });
+            }
+            try {
+                const context = apiInstance.getActiveContextNote?.();
+                if (context?.noteId) {
+                    return context.noteId;
+                }
+            } catch (error) {
+                this.logger.warn("root.detect.context-failed", { error: error.message });
+            }
+            return apiInstance.startNote?.noteId || null;
+        }
+
+        isDashboardRootNote(note) {
+            if (!note || !note.noteId) {
+                return false;
+            }
+            return this.backend.isDashboardRootNoteId(note.noteId);
+        }
+
+        suspendDashboard(noteId) {
+            if (this.suspended) {
+                return;
+            }
+            this.logger.info("dashboard.suspend", { noteId });
+            this.suspended = true;
+            this.activeRootNoteId = null;
+            this.backend.setExplicitRootNoteId(null);
+            this.backend.resetStructureCache();
+            if (this.eventsBound && this.dom?.root?.length) {
+                this.dom.root.off();
+                this.eventsBound = false;
+            }
+            if (this.dom?.root?.length) {
+                this.dom.root
+                    .empty()
+                    .append('<div class="habit-dashboard__inactive" data-role="inactive-state"><p>Open a Habit Dashboard note to resume tracking.</p></div>');
+            }
+        }
+
+        async activateDashboard(noteId, { reason = "activate", allowPending = false } = {}) {
+            if (!noteId) {
+                return;
+            }
+            this.backend.setExplicitRootNoteId(noteId, { allowPending });
+            this.activeRootNoteId = noteId;
+            if (this.suspended) {
+                this.dom.root = ensureRootStructure(this.api);
+                this.suspended = false;
+            } else if (this.dom?.root?.length) {
+                this.dom.root = ensureRootStructure(this.api);
+            }
+            this.eventsBound = false;
+            this.cacheDom();
+            this.bindEvents();
+            await this.refresh({ reason, silent: reason.includes("note-switch") });
+        }
+
+        async handleNoteSwitch(source, note) {
+            if (this.destroying) {
+                return;
+            }
+            const noteId = note?.noteId || null;
+            const isRoot = noteId ? this.backend.isDashboardRootNoteId(noteId) : false;
+            if (isRoot) {
+                const needsActivation = this.suspended || this.activeRootNoteId !== noteId;
+                if (needsActivation) {
+                    await this.activateDashboard(noteId, {
+                        reason: `note-switch:${source}`,
+                        allowPending: false
+                    });
+                } else {
+                    await this.refresh({ reason: `note-switch:${source}`, silent: true });
+                }
+                return;
+            }
+
+            this.logger.info("dashboard.context.leave", {
+                source,
+                nextNoteId: noteId || null,
+                hadRoot: !!this.activeRootNoteId
+            });
+            this.suspendDashboard(noteId || null);
         }
 
         cacheDom() {
@@ -4971,6 +5276,9 @@
         bindEvents() {
             const $root = this.dom.root;
             if (!$root || !$root.length) {
+                return;
+            }
+            if (this.eventsBound) {
                 return;
             }
 
@@ -5215,6 +5523,8 @@
                 }
                 await this.deleteGroupFlow(groupId);
             });
+
+            this.eventsBound = true;
         }
 
         shouldIgnoreHabitPointer(event) {
@@ -9075,6 +9385,15 @@
         }
 
         async refresh({ reason = "auto", silent = false } = {}) {
+            if (this.suspended) {
+                this.logger.info("refresh.skipped.suspended", { reason });
+                return;
+            }
+            const rootId = this.backend.getResolvedRootNoteId();
+            if (!rootId) {
+                this.logger.warn("refresh.no-root", { reason });
+                return;
+            }
             if (this.state.loading) {
                 return;
             }

@@ -8,6 +8,8 @@ Each dashboard note creates two child books:
 - `Entries` – Contains one note per habit/day (or per entry when multiple entries per day are enabled).
 - Deleting a habit also deletes its associated entry notes to keep the vault tidy.
 
+> The script now refuses to provision or mutate data unless it is running inside a note that already carries the `habitDashboardRoot` label (or the note that is in the process of being initialised). Navigating away from a dashboard suspends the UI and backend until a labelled root comes back into focus, preventing stray `Habits`/`Entries` books from appearing under unrelated notes.
+
 Both books live directly under the dashboard note, allowing multiple dashboards to coexist without collisions.
 
 ## Habit Notes

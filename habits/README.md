@@ -119,6 +119,22 @@ Tuning examples and variable listings live in [docs/customization.md](docs/custo
 - Console logs are prefixed with the deployed version (e.g., `[habit-dashboard/v12]`), making it easy to confirm upgrades
 - Backend calls emit structured logs (`backend.call.start`, `.success`, `.failed`) with the script/root note IDs to aid support cases
 
+## Root Detection & Navigation
+
+- The dashboard locks to whichever note carries the `habitDashboardRoot` label. The first successful `ensureStructure` run writes that label, so the correct root survives future refreshes.
+- Leaving the dashboard note suspends the UI: the grid is replaced with a lightweight placeholder and the backend refuses to mutate any data until a labelled dashboard returns to focus.
+- Switching to another dashboard reuses the same script instance—the backend flushes its cached structure, rebinds the DOM, and refreshes the new root as soon as a valid note is detected.
+
+## Testing
+
+Manual smoke tests for root locking and navigation:
+
+1. Open a dashboard note (either existing or freshly created) and confirm `Habits`/`Entries` are created directly beneath it.
+2. Trigger a refresh (`Refresh` button or ⌘/Ctrl+R inside the pane) and confirm no duplicate `Habits`/`Entries` books appear anywhere else in the tree.
+3. Navigate to a non-dashboard note: the habit grid should disappear, showing the "Open a Habit Dashboard note to resume tracking" placeholder, and no new books should be created under the visited note.
+4. Return to the original dashboard note and verify that the UI is rebuilt automatically and entries can be added/edited without errors.
+5. (Optional) Repeat steps 1–4 with a second dashboard note to confirm cross-dashboard switching keeps each vault isolated.
+
 ## Development
 
 - No build step is required - edit the script directly and reload the dashboard note inside Trilium to test.
