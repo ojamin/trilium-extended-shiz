@@ -311,14 +311,29 @@
         });
     }
 
-    function formatDue(dateIso) {
+    function formatDue(dateIso, options = {}) {
         if (!dateIso) {
             return null;
         }
+        const { isCompleted = false } = options;
         const dueDate = localDateFromIso(dateIso);
         if (!dueDate) {
             return null;
         }
+        const absolute = dueDate.toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+
+        if (isCompleted) {
+            return {
+                label: absolute,
+                helper: absolute,
+                variant: ''
+            };
+        }
+
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const diffFromToday = dueDate.getTime() - today.getTime();
@@ -342,12 +357,6 @@
         } else {
             relative = `Due in ${diffDays} days`;
         }
-
-        const absolute = dueDate.toLocaleDateString(undefined, {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
 
         return {
             label: relative,
@@ -3316,7 +3325,7 @@
                     row.appendChild(titleCell);
 
                     const dueCell = document.createElement('td');
-                    const due = formatDue(task.dueDate);
+                    const due = formatDue(task.dueDate, { isCompleted: task.isCompleted });
                     if (due) {
                         const dueSpan = el('span', 'task-due', due.label);
                         dueSpan.title = due.helper;
@@ -3515,7 +3524,7 @@
 
                         const location = this.getTaskLocation(task);
                         const statusAge = formatRelativeTime(task.statusChangedAt);
-                        const due = formatDue(task.dueDate);
+                        const due = formatDue(task.dueDate, { isCompleted: task.isCompleted });
                         const taskRoles = Array.isArray(task.roles) ? task.roles : [];
                         const taskTags = Array.isArray(task.tags) ? task.tags : [];
                         const tooltipLines = [task.title];
@@ -4147,7 +4156,7 @@
 
             const statusRow = el('div', 'task-tags');
             statusRow.appendChild(createStatusPill(task.status));
-            const due = formatDue(task.dueDate);
+            const due = formatDue(task.dueDate, { isCompleted: task.isCompleted });
             if (due) {
                 const dueSpan = el('span', `task-due ${due.variant || ''}`, due.label);
                 dueSpan.title = due.helper;

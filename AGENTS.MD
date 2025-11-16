@@ -4,6 +4,7 @@
 - No other similarly named project is acceptable—double-check that any references, API usage, or screenshots point to that repo.
 - Before using any Trilium Next Notes APIs or features, read the official documentation in the upstream GitHub repo so behaviour lines up with core expectations.
 - Public-facing onboarding now lives in `habits/README.md` and `task-system/README.md`; keep them in sync with this agent memo so external docs stay accurate, and use the root `README.md` only for high-level project summaries. Deep-dives reside in `habits/docs/` (habit types, streak algorithm, customization, data structure) and any task-system docs we add — update both when behaviour changes.
+- When making user-visible changes, append a new entry to `CHANGELOG.md` with today’s date (YYYY-MM-DD) before wrapping up so release notes stay current.
 
 ## Habit Dashboard notes
 
