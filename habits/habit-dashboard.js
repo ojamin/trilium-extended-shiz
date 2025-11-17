@@ -314,6 +314,7 @@
             --hd-positive: var(--success-color, #60dea9);
             --hd-warning: var(--warning-color, #ffb453);
             --hd-critical: var(--danger-color, #c95353);
+            --hd-color-scheme: var(--color-scheme, light dark);
             --hd-control-bg: var(--input-background-color, var(--hd-surface));
             --hd-control-border: var(--input-border-color, var(--hd-border));
             --hd-control-foreground: var(--input-text-color, var(--hd-foreground));
