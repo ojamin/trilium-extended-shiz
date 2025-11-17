@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2025-11-17
+- Fixed Habit Dashboard dark theme dropdowns (date selector, range picker, modals) by applying themed control palettes and the color-scheme hint so native popups stay readable.
+
 ## 2025-11-16
 - Prevent due dates on completed tasks from showing as overdue so finished work can remain visible without incorrect warnings.
 
