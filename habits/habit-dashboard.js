@@ -314,9 +314,9 @@
             --hd-positive: var(--success-color, #60dea9);
             --hd-warning: var(--warning-color, #ffb453);
             --hd-critical: var(--danger-color, #c95353);
-            --hd-control-bg: var(--input-background-color, var(--card-background-color, #ffffff));
-            --hd-control-border: var(--input-border-color, var(--card-border-color, #d5dbe6));
-            --hd-control-foreground: var(--input-text-color, var(--main-text-color, #1f2933));
+            --hd-control-bg: var(--input-background-color, var(--hd-surface));
+            --hd-control-border: var(--input-border-color, var(--hd-border));
+            --hd-control-foreground: var(--input-text-color, var(--hd-foreground));
             --hd-chip-bg: var(--button-background-color, var(--hd-surface-alt));
             --hd-chip-border: var(--button-border-color, var(--hd-border));
             --hd-chip-foreground: var(--button-text-color, var(--hd-foreground));
@@ -338,6 +338,12 @@
             --hd-shadow-soft: 0 12px 24px color-mix(in srgb, var(--hd-foreground) 16%, transparent);
             --hd-shadow-medium: 0 12px 32px color-mix(in srgb, var(--hd-foreground) 18%, transparent);
             --hd-shadow-strong: 0 14px 36px color-mix(in srgb, var(--hd-foreground) 24%, transparent);
+            --hd-menu-bg: var(--menu-background-color-no-backdrop,
+                var(--menu-background-color,
+                    var(--hd-surface-elevated, var(--detail-background, #ffffff))));
+            --hd-menu-border: var(--menu-border-color, var(--hd-border-soft, rgba(148, 163, 184, 0.45)));
+            --hd-menu-foreground: var(--menu-text-color, var(--hd-foreground));
+            --hd-menu-foreground-muted: color-mix(in srgb, var(--hd-menu-foreground) 66%, transparent);
             --detail-background: var(--hd-surface);
             --detail-background-alt: var(--hd-surface-alt);
             --detail-foreground: var(--hd-foreground);
@@ -358,6 +364,7 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
+            color-scheme: var(--hd-color-scheme, light dark);
         }
 
         .habit-dashboard__header {
@@ -389,12 +396,41 @@
             flex-wrap: wrap;
         }
 
+        .habit-dashboard select,
+        .habit-dashboard__modal select,
+        .habit-dashboard input[type="date"],
+        .habit-dashboard__modal input[type="date"] {
+            background: var(--hd-control-bg);
+            color: var(--hd-control-foreground);
+            border: 1px solid var(--hd-control-border);
+            color-scheme: var(--hd-color-scheme, light dark);
+        }
+
+        .habit-dashboard select,
+        .habit-dashboard__modal select {
+            -webkit-appearance: none;
+            appearance: none;
+            padding-right: 26px;
+            background-image:
+                linear-gradient(45deg, transparent 50%, var(--hd-control-foreground) 50%),
+                linear-gradient(-45deg, transparent 50%, var(--hd-control-foreground) 50%);
+            background-position:
+                right 10px center,
+                right 5px center;
+            background-size: 6px 6px;
+            background-repeat: no-repeat;
+        }
+
+        .habit-dashboard select::-ms-expand {
+            display: none;
+        }
+
         .habit-dashboard__controls button,
         .habit-dashboard__controls input[type="date"],
         .habit-dashboard__controls select {
-            background: var(--detail-background, var(--pane-background-color, #ffffff));
-            color: var(--detail-foreground, var(--main-foreground-color, #1f2933));
-            border: 1px solid var(--detail-border, var(--pane-border-color, #d5dbe6));
+            background: var(--hd-control-bg);
+            color: var(--hd-control-foreground);
+            border: 1px solid var(--hd-control-border);
             border-radius: 4px;
             padding: 4px 8px;
             height: 28px;
@@ -408,7 +444,30 @@
         }
 
         .habit-dashboard__controls button:hover {
-            background: var(--detail-background-alt, var(--pane-background-color-alt, #f1f5f9));
+            background: var(--hd-surface-hover, var(--detail-background-alt, var(--pane-background-color-alt, #f1f5f9)));
+        }
+
+        .habit-dashboard select option,
+        .habit-dashboard__modal select option,
+        .habit-dashboard select optgroup,
+        .habit-dashboard__modal select optgroup {
+            background: var(--hd-menu-bg) !important;
+            color: var(--hd-menu-foreground) !important;
+        }
+
+        .habit-dashboard select option:checked,
+        .habit-dashboard select option:hover,
+        .habit-dashboard select option:focus,
+        .habit-dashboard__modal select option:checked,
+        .habit-dashboard__modal select option:hover,
+        .habit-dashboard__modal select option:focus {
+            background: color-mix(in srgb, var(--hd-accent) 18%, var(--hd-menu-bg) 82%) !important;
+            color: var(--hd-menu-foreground) !important;
+        }
+
+        .habit-dashboard input[type="date"]::-webkit-calendar-picker-indicator,
+        .habit-dashboard__modal input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: brightness(0.9);
         }
 
         .habit-dashboard__action-menu {
@@ -449,12 +508,11 @@
             display: none;
             flex-direction: column;
             padding: 6px;
-            background: var(--menu-background-color-no-backdrop,
-                var(--menu-background-color,
-                    var(--hd-surface-elevated, var(--detail-background, #ffffff))));
-            border: 1px solid var(--hd-border-soft, rgba(148, 163, 184, 0.45));
+            background: var(--hd-menu-bg);
+            color: var(--hd-menu-foreground);
+            border: 1px solid var(--hd-menu-border);
             border-radius: 8px;
-            box-shadow: 0 14px 30px rgba(15, 23, 42, 0.18);
+            box-shadow: var(--hd-shadow-medium, 0 14px 30px rgba(15, 23, 42, 0.18));
             min-width: 220px;
             z-index: 40;
             gap: 4px;
@@ -499,7 +557,7 @@
 
         .habit-dashboard__menu-item-meta {
             font-size: 11px;
-            color: var(--hd-foreground-muted);
+            color: var(--hd-menu-foreground-muted, var(--hd-foreground-muted));
             white-space: nowrap;
         }
 
@@ -611,9 +669,9 @@
         .habit-dashboard__control input,
         .habit-dashboard__control select,
         .habit-dashboard__control button {
-            background: var(--detail-background, var(--pane-background-color, #ffffff));
-            color: var(--detail-foreground, var(--main-foreground-color, #1f2933));
-            border: 1px solid var(--detail-border, var(--pane-border-color, #d5dbe6));
+            background: var(--hd-control-bg);
+            color: var(--hd-control-foreground);
+            border: 1px solid var(--hd-control-border);
             border-radius: 4px;
             padding: 4px 6px;
             min-width: 60px;
@@ -1608,11 +1666,12 @@
         .habit-dashboard__form-grid input,
         .habit-dashboard__form-grid select,
         .habit-dashboard__form-grid textarea {
-            background: var(--detail-background, var(--pane-background-color, #ffffff));
-            color: var(--detail-foreground, var(--main-foreground-color, #1f2933));
-            border: 1px solid var(--detail-border, var(--pane-border-color, #d5dbe6));
+            background: var(--hd-control-bg);
+            color: var(--hd-control-foreground);
+            border: 1px solid var(--hd-control-border);
             border-radius: 4px;
             padding: 6px 8px;
+            color-scheme: var(--hd-color-scheme, light dark);
         }
 
         .habit-dashboard__form-grid textarea {
